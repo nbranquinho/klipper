@@ -19,6 +19,7 @@
 #endif
 
 // gpio.c
+int gpio_valid(uint32_t pin);
 extern GPIO_TypeDef * const digital_regs[];
 #define GPIO(PORT, NUM) (((PORT)-'A') * 16 + (NUM))
 #define GPIO2PORT(PIN) ((PIN) / 16)
