@@ -15,14 +15,19 @@ struct i2c_info {
     uint8_t scl_pin, sda_pin, function;
 };
 
+#define FUNC_I2C GPIO_FUNCTION(CONFIG_MACH_STM32G0 ? 6 : 1)
+
 DECL_ENUMERATION("i2c_bus", "i2c1", 0);
 DECL_CONSTANT_STR("BUS_PINS_i2c1", "PB6,PB7");
 DECL_ENUMERATION("i2c_bus", "i2c1a", 1);
 DECL_CONSTANT_STR("BUS_PINS_i2c1a", "PF1,PF0");
+DECL_ENUMERATION("i2c_bus", "i2c1b", 2);
+DECL_CONSTANT_STR("BUS_PINS_i2c1b", "PB8,PB9");
 
 static const struct i2c_info i2c_bus[] = {
-    { I2C1, GPIO('B', 6), GPIO('B', 7), GPIO_FUNCTION(1) },
-    { I2C1, GPIO('F', 1), GPIO('F', 0), GPIO_FUNCTION(1) },
+    { I2C1, GPIO('B', 6), GPIO('B', 7), FUNC_I2C },
+    { I2C1, GPIO('F', 1), GPIO('F', 0), FUNC_I2C },
+    { I2C1, GPIO('B', 8), GPIO('B', 9), FUNC_I2C },
 };
 
 struct i2c_config
@@ -33,6 +38,8 @@ i2c_setup(uint32_t bus, uint32_t rate, uint8_t addr)
         shutdown("Unsupported i2c bus");
     const struct i2c_info *ii = &i2c_bus[bus];
     I2C_TypeDef *i2c = ii->i2c;
+    if (!gpio_valid(ii->scl_pin) || !gpio_valid(ii->sda_pin))
+        shutdown("Unsupported i2c bus");
 
     if (!is_enabled_pclock((uint32_t)i2c)) {
         // Enable i2c clock and gpio
